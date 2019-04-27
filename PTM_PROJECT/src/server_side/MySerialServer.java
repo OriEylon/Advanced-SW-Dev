@@ -26,6 +26,7 @@ public class MySerialServer implements Server {
 		this.ch = ch;
 		new Thread(() -> {
 			try {
+				Thread.currentThread().setName("My server Thread");
 				RunServer();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -42,15 +43,13 @@ public class MySerialServer implements Server {
 
 	public void RunServer() throws IOException {
 		ServerSocket server = new ServerSocket(port);
-		server.setSoTimeout(3000);
-//		int counter=0;
-		while (!stop) { // counter<5..
+		server.setSoTimeout(300000);
+		while (!stop) {
 			try {
 				Socket aClient = server.accept(); // blocking call
 				try {
 					ch.handleClient(aClient.getInputStream(), aClient.getOutputStream());
 					aClient.close();
-//					counter++;
 				} catch (IOException e) {
 					System.out.println("invalid input/output");
 				}
