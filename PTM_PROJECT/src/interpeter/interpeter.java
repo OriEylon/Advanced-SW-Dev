@@ -11,6 +11,5 @@ public class interpeter {
 
 	public double interpet() {
 		return parser.parse(lexer.Read());
-		
 	}
 }

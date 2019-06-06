@@ -12,8 +12,8 @@ public class DisconnectCommand implements Command {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		OpenServerCommand.stop=true;
-		ConnectCommand.stop=true;
+		OpenServerCmd.stop=true;
+		ConnectCmd.stop=true;
 	}
 
 	@Override

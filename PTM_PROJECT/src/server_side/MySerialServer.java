@@ -26,7 +26,7 @@ public class MySerialServer implements Server {
 		this.ch = ch;
 		new Thread(() -> {
 			try {
-				Thread.currentThread().setName("My server Thread");
+				Thread.currentThread().setName("My serial server Thread");
 				RunServer();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -46,6 +46,7 @@ public class MySerialServer implements Server {
 		server.setSoTimeout(300000);
 		while (!stop) {
 			try {
+				System.out.println("waiting for client");
 				Socket aClient = server.accept(); // blocking call
 				try {
 					ch.handleClient(aClient.getInputStream(), aClient.getOutputStream());
