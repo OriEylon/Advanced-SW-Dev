@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.media.*?>
 <?import javafx.scene.text.*?>
 <?import javafx.scene.*?>
@@ -26,7 +27,7 @@
                   <Font name="System Bold" size="13.0" />
                </font></RadioButton>
             <Circle fx:id="circleOut" fill="#dddddd" layoutX="564.0" layoutY="150.0" radius="76.0" stroke="BLACK" strokeType="INSIDE" />
-            <Circle fx:id="circleIn" fill="#a1a1a1" layoutX="564.0" layoutY="150.0" radius="29.0" stroke="BLACK" strokeType="INSIDE">
+            <Circle fx:id="circleIn" fill="#a1a1a1" layoutX="564.0" layoutY="150.0" onMouseDragged="#OnDragg" onMouseEntered="#OnPress" onMouseReleased="#OnRelease" radius="29.0" stroke="BLACK" strokeType="INSIDE">
                <effect>
                   <Lighting>
                      <bumpInput>
@@ -55,7 +56,7 @@
                </font>
             </Text>
             <Button layoutX="383.0" layoutY="22.0" mnemonicParsing="false" onAction="#load" text="Load" />
-            <TextArea fx:id="textarea" layoutX="249.0" layoutY="65.0" prefHeight="200.0" prefWidth="200.0" />
+            <TextArea fx:id="textarea" layoutX="236.0" layoutY="64.0" prefHeight="200.0" prefWidth="200.0" />
             <Text layoutX="544.0" layoutY="70.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Aileron">
                <font>
                   <Font size="15.0" />
