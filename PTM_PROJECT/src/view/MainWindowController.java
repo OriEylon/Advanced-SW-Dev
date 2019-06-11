@@ -12,8 +12,8 @@ import java.util.Scanner;
 import Model_Pack.Model;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -24,6 +24,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -55,7 +56,11 @@ public class MainWindowController implements Observer {
 	Button open;
 	Scanner scanner;
 	StringProperty script;
-//	@FXML
+
+	 double orgSceneX, orgSceneY;
+	 double orgTranslateX, orgTranslateY;
+
+	// @FXML
 //	TextField VarBreaks, VarThrottle, VarHeading, VarAirspeed, VarRoll, VarPitch, VarRudder, VarAilron, VarElevetor,
 //			VarAlt, VarRpm, VarH0;
 	Stage stage = new Stage();
@@ -158,10 +163,76 @@ public class MainWindowController implements Observer {
 		stage.close();
 	}
 
+	   EventHandler<MouseEvent> circleOnMousePressedEventHandler =
+		        new EventHandler<MouseEvent>() {
+
+		        @Override
+		        public void handle(MouseEvent t) {
+
+		        	orgSceneX = t.getSceneX();
+		            orgSceneY = t.getSceneY();
+		            orgTranslateX = ((Circle)(t.getSource())).getTranslateX();
+		            orgTranslateY = ((Circle)(t.getSource())).getTranslateY();
+		         ((Circle)(t.getSource())).toFront();
+		        }
+		    };
+
+
+	EventHandler<MouseEvent> circleOnMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
+
+		@Override
+		public void handle(MouseEvent t) {
+
+			double offsetX = t.getSceneX() - orgSceneX;
+			double offsetY = t.getSceneY() - orgSceneY;
+			if((offsetX <= 60 && offsetX >= -60) && (offsetY <= 60 && offsetY >= -60)) {
+			double newTranslateX = orgTranslateX + offsetX;
+			double newTranslateY = orgTranslateY + offsetY;
+
+			((Circle) (t.getSource())).setTranslateX(newTranslateX);
+
+			((Circle) (t.getSource())).setTranslateY(newTranslateY);
+			((Circle)(t.getSource())).toFront();
+
+			}
+
+		}
+	};
+
+	EventHandler<MouseEvent> circleOnMouseReleaseEventHandler =
+	        new EventHandler<MouseEvent>() {
+
+	        @Override
+	        public void handle(MouseEvent t) {
+
+	            ((Circle) (t.getSource())).setTranslateX(((Circle) (t.getSource())).getCenterX());
+				((Circle) (t.getSource())).setTranslateY(((Circle) (t.getSource())).getCenterY());
+				((Circle)(t.getSource())).toFront();
+	        }
+	    };
+
+	public void OnPress () {
+
+		circleIn.setOnMousePressed(circleOnMousePressedEventHandler);
+		//circleIn.setOnMouseDragged(circleOnMouseDraggedEventHandler);
+	}
+
+	public void OnDragg () {
+
+		circleIn.setOnMouseDragged(circleOnMouseDraggedEventHandler);
+
+	}
+
+	public void OnRelease() {
+
+		circleIn.setOnMouseReleased(circleOnMouseReleaseEventHandler);
+
+
+	}
+
 	@Override
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
 
 	}
-
 }
