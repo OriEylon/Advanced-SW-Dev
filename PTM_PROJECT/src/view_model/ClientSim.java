@@ -6,7 +6,7 @@ import java.net.Socket;
 
 public class ClientSim {
 	public volatile boolean stop;
-	public PrintWriter out;
+	public static PrintWriter out;
 
 	public void connect(String ip, int port) {
 		new Thread(() -> {
@@ -29,5 +29,7 @@ public class ClientSim {
 
 	public void send(String path, Double value) {
 		out.println("set " + path + " " + value);
+		out.flush();
+//		System.out.println("set " + path + " " + value);
 	}
 }

@@ -12,8 +12,9 @@ import java.util.Scanner;
 import Model_Pack.Model;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -57,8 +58,8 @@ public class MainWindowController implements Observer {
 	Scanner scanner;
 	StringProperty script;
 
-	 double orgSceneX, orgSceneY;
-	 double orgTranslateX, orgTranslateY;
+	double orgSceneX, orgSceneY;
+	double orgTranslateX, orgTranslateY;
 
 	// @FXML
 //	TextField VarBreaks, VarThrottle, VarHeading, VarAirspeed, VarRoll, VarPitch, VarRudder, VarAilron, VarElevetor,
@@ -163,20 +164,18 @@ public class MainWindowController implements Observer {
 		stage.close();
 	}
 
-	   EventHandler<MouseEvent> circleOnMousePressedEventHandler =
-		        new EventHandler<MouseEvent>() {
+	EventHandler<MouseEvent> circleOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
 
-		        @Override
-		        public void handle(MouseEvent t) {
+		@Override
+		public void handle(MouseEvent t) {
 
-		        	orgSceneX = t.getSceneX();
-		            orgSceneY = t.getSceneY();
-		            orgTranslateX = ((Circle)(t.getSource())).getTranslateX();
-		            orgTranslateY = ((Circle)(t.getSource())).getTranslateY();
-		         ((Circle)(t.getSource())).toFront();
-		        }
-		    };
-
+			orgSceneX = t.getSceneX();
+			orgSceneY = t.getSceneY();
+			orgTranslateX = ((Circle) (t.getSource())).getTranslateX();
+			orgTranslateY = ((Circle) (t.getSource())).getTranslateY();
+			((Circle) (t.getSource())).toFront();
+		}
+	};
 
 	EventHandler<MouseEvent> circleOnMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
 
@@ -185,39 +184,40 @@ public class MainWindowController implements Observer {
 
 			double offsetX = t.getSceneX() - orgSceneX;
 			double offsetY = t.getSceneY() - orgSceneY;
-			if((offsetX <= 60 && offsetX >= -60) && (offsetY <= 60 && offsetY >= -60)) {
-			double newTranslateX = orgTranslateX + offsetX;
-			double newTranslateY = orgTranslateY + offsetY;
+			if ((offsetX <= 60 && offsetX >= -60) && (offsetY <= 60 && offsetY >= -60)) {
+				double newTranslateX = orgTranslateX + offsetX;
+				double newTranslateY = orgTranslateY + offsetY;
 
-			((Circle) (t.getSource())).setTranslateX(newTranslateX);
-
-			((Circle) (t.getSource())).setTranslateY(newTranslateY);
-			((Circle)(t.getSource())).toFront();
-
+				((Circle) (t.getSource())).setTranslateX(newTranslateX);
+				((Circle) (t.getSource())).setTranslateY(newTranslateY);
+				((Circle) (t.getSource())).toFront();
+				vm.getClient().send("/controls/flight/aileron", newTranslateY);
+				vm.getClient().send("/controls/flight/elevator", newTranslateX);
 			}
 
 		}
 	};
 
-	EventHandler<MouseEvent> circleOnMouseReleaseEventHandler =
-	        new EventHandler<MouseEvent>() {
+	EventHandler<MouseEvent> circleOnMouseReleaseEventHandler = new EventHandler<MouseEvent>() {
 
-	        @Override
-	        public void handle(MouseEvent t) {
+		@Override
+		public void handle(MouseEvent t) {
 
-	            ((Circle) (t.getSource())).setTranslateX(((Circle) (t.getSource())).getCenterX());
-				((Circle) (t.getSource())).setTranslateY(((Circle) (t.getSource())).getCenterY());
-				((Circle)(t.getSource())).toFront();
-	        }
-	    };
+			((Circle) (t.getSource())).setTranslateX(((Circle) (t.getSource())).getCenterX());
+			((Circle) (t.getSource())).setTranslateY(((Circle) (t.getSource())).getCenterY());
+			((Circle) (t.getSource())).toFront();
+			vm.getClient().send("/controls/flight/aileron", 0.0);
+			vm.getClient().send("/controls/flight/elevator", 0.0);
+		}
+	};
 
-	public void OnPress () {
+	public void OnPress() {
 
 		circleIn.setOnMousePressed(circleOnMousePressedEventHandler);
-		//circleIn.setOnMouseDragged(circleOnMouseDraggedEventHandler);
+		// circleIn.setOnMouseDragged(circleOnMouseDraggedEventHandler);
 	}
 
-	public void OnDragg () {
+	public void OnDragg() {
 
 		circleIn.setOnMouseDragged(circleOnMouseDraggedEventHandler);
 
@@ -226,7 +226,6 @@ public class MainWindowController implements Observer {
 	public void OnRelease() {
 
 		circleIn.setOnMouseReleased(circleOnMouseReleaseEventHandler);
-
 
 	}
 
