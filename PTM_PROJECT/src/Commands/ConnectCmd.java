@@ -5,8 +5,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import interpeter.Parser;
-
 public class ConnectCmd implements Command {
 	public static volatile boolean stop = false;
 	public static Object wait = new Object();

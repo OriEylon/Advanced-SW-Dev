@@ -10,6 +10,10 @@ public class Lexer {
 		scanner = new Scanner((Readable) script);
 	}
 
+	public Lexer(String s) {
+		scanner=new Scanner(s);
+	}
+	
 	public Lexer(String[] script) {
 		String stream = "";
 		for (String s : script) {
