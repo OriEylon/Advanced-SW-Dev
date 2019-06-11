@@ -27,7 +27,7 @@ public class ClientSim {
 		}).start();
 	}
 
-	public void send() {
-
+	public void send(String path, Double value) {
+		out.println("set " + path + " " + value);
 	}
 }

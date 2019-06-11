@@ -12,6 +12,8 @@ import java.util.Scanner;
 import Model_Pack.Model;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -42,7 +44,7 @@ public class MainWindowController implements Observer {
 	@FXML
 	Circle circleIn;
 	@FXML
-	Slider Thruttle;
+	Slider Throttle;
 	@FXML
 	Slider Rudder;
 	@FXML
@@ -104,7 +106,7 @@ public class MainWindowController implements Observer {
 				AutoPilot.setSelected(false);
 				manual.setSelected(true);
 			}
-
+			sliders();
 		} else if (s.equals("autopilot")) {
 			if (manual.isSelected()) {
 				AutoPilot.setSelected(true);
@@ -112,6 +114,26 @@ public class MainWindowController implements Observer {
 			}
 			exeAutopilot();
 		}
+	}
+
+	public void sliders() {
+		Throttle.valueProperty().addListener(new ChangeListener<Number>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				vm.getClient().send("/controls/engines/current-engine/throttle", newValue.doubleValue());
+//				System.out.println("set throttle " + newValue.doubleValue());
+			}
+		});
+
+		Rudder.valueProperty().addListener(new ChangeListener<Number>() {
+
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				vm.getClient().send("/controls/flight/rudder", newValue.doubleValue());
+//				System.out.println("set rudder " + newValue.doubleValue());
+			}
+		});
 	}
 
 	public void connectButton() {

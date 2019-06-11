@@ -42,8 +42,8 @@
                   </Lighting>
                </effect>
             </Circle>
-            <Slider fx:id="Rudder" layoutX="494.0" layoutY="243.0" showTickMarks="true" />
-            <Slider fx:id="Thruttle" layoutX="464.0" layoutY="86.0" orientation="VERTICAL" showTickMarks="true" />
+            <Slider fx:id="Rudder" layoutX="494.0" layoutY="243.0" majorTickUnit="0.25" max="1.0" min="-1.0" showTickMarks="true" />
+            <Slider fx:id="Throttle" layoutX="464.0" layoutY="86.0" majorTickUnit="0.25" max="1.0" orientation="VERTICAL" showTickMarks="true" />
             <Text boundsType="VISUAL" layoutX="432.0" layoutY="150.0" rotate="-90.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Throttle" textOrigin="CENTER" wrappingWidth="57.8291015625">
                <font>
                   <Font size="15.0" />

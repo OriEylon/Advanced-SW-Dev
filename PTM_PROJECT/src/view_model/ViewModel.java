@@ -12,6 +12,14 @@ public class ViewModel extends Observable implements Observer {
 	public StringProperty Script;
 	ClientSim client = new ClientSim();
 
+	public Model getM() {
+		return m;
+	}
+
+	public ClientSim getClient() {
+		return client;
+	}
+
 	public ViewModel(Model m) {
 		this.m = m;
 		Script = new SimpleStringProperty();
