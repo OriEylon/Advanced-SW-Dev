@@ -22,4 +22,8 @@ public class Model extends Observable {
 		i.interpet();
 	}
 
+	public int normalize(int x, int max, int min, int newmax, int newmin) {
+		return (x - min) / (max - min) * (newmax - newmin) + newmin;
+	}
+
 }

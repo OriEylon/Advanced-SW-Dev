@@ -88,6 +88,7 @@ public class MainWindowController implements Observer {
 
 	public void load() {
 		FileChooser fc = new FileChooser();
+		fc.setInitialDirectory(new File("C:\\Users\\Ori\\GitHub\\Advanced-SW-Dev\\PTM_PROJECT"));
 		File selected = fc.showOpenDialog(null);
 		if (selected != null) {
 			try {
@@ -127,7 +128,8 @@ public class MainWindowController implements Observer {
 
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				vm.getClient().send("/controls/engines/current-engine/throttle", newValue.doubleValue());
+				if (manual.isSelected())
+					vm.getClient().send("/controls/engines/current-engine/throttle", newValue.doubleValue());
 //				System.out.println("set throttle " + newValue.doubleValue());
 			}
 		});
@@ -136,7 +138,8 @@ public class MainWindowController implements Observer {
 
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				vm.getClient().send("/controls/flight/rudder", newValue.doubleValue());
+				if (manual.isSelected())
+					vm.getClient().send("/controls/flight/rudder", newValue.doubleValue());
 //				System.out.println("set rudder " + newValue.doubleValue());
 			}
 		});
@@ -173,7 +176,7 @@ public class MainWindowController implements Observer {
 			orgSceneY = t.getSceneY();
 			orgTranslateX = ((Circle) (t.getSource())).getTranslateX();
 			orgTranslateY = ((Circle) (t.getSource())).getTranslateY();
-			((Circle) (t.getSource())).toFront();
+//			((Circle) (t.getSource())).toFront();
 		}
 	};
 
@@ -190,9 +193,11 @@ public class MainWindowController implements Observer {
 
 				((Circle) (t.getSource())).setTranslateX(newTranslateX);
 				((Circle) (t.getSource())).setTranslateY(newTranslateY);
-				((Circle) (t.getSource())).toFront();
-				vm.getClient().send("/controls/flight/aileron", newTranslateY/60);
-				vm.getClient().send("/controls/flight/elevator", newTranslateX/-60);
+//				((Circle) (t.getSource())).toFront();
+				if (manual.isSelected()) {
+					vm.getClient().send("/controls/flight/aileron", newTranslateY / 60);
+					vm.getClient().send("/controls/flight/elevator", newTranslateX / -60);
+				}
 			}
 
 		}
@@ -205,16 +210,16 @@ public class MainWindowController implements Observer {
 
 			((Circle) (t.getSource())).setTranslateX(((Circle) (t.getSource())).getCenterX());
 			((Circle) (t.getSource())).setTranslateY(((Circle) (t.getSource())).getCenterY());
-			((Circle) (t.getSource())).toFront();
-			vm.getClient().send("/controls/flight/aileron", 0.0);
-			vm.getClient().send("/controls/flight/elevator", 0.0);
+//			((Circle) (t.getSource())).toFront();
+//			vm.getClient().send("/controls/flight/aileron", 0.0);
+//			vm.getClient().send("/controls/flight/elevator", 0.0);
 		}
 	};
 
 	public void OnPress() {
 
 		circleIn.setOnMousePressed(circleOnMousePressedEventHandler);
-		
+
 	}
 
 	public void OnDragg() {
@@ -229,9 +234,18 @@ public class MainWindowController implements Observer {
 
 	}
 
+	public void LoadData() {
+		FileChooser fc = new FileChooser();
+		fc.setTitle("Load map.csv");
+		fc.setInitialDirectory(new File("C:\\Users\\Ori\\GitHub\\Advanced-SW-Dev\\PTM_PROJECT"));
+		File selected = fc.showOpenDialog(null);
+		if (selected != null) {
+			vm.readCSV(selected);
+		}
+	}
+
 	@Override
 	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
 
 	}
 }
