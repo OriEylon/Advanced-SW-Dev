@@ -191,8 +191,8 @@ public class MainWindowController implements Observer {
 				((Circle) (t.getSource())).setTranslateX(newTranslateX);
 				((Circle) (t.getSource())).setTranslateY(newTranslateY);
 				((Circle) (t.getSource())).toFront();
-				vm.getClient().send("/controls/flight/aileron", newTranslateY);
-				vm.getClient().send("/controls/flight/elevator", newTranslateX);
+				vm.getClient().send("/controls/flight/aileron", newTranslateY/60);
+				vm.getClient().send("/controls/flight/elevator", newTranslateX/-60);
 			}
 
 		}
@@ -214,7 +214,7 @@ public class MainWindowController implements Observer {
 	public void OnPress() {
 
 		circleIn.setOnMousePressed(circleOnMousePressedEventHandler);
-		// circleIn.setOnMouseDragged(circleOnMouseDraggedEventHandler);
+		
 	}
 
 	public void OnDragg() {
