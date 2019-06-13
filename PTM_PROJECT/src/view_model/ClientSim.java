@@ -27,8 +27,11 @@ public class ClientSim {
 		}).start();
 	}
 
-	public void send(String path, Double value) {
-		out.println("set " + path + " " + value);
+	public void send(Double ailron, Double elevator, Double throttle, Double rudder) {
+		out.println("set /controls/flight/aileron " + ailron + " \n");
+		out.println("set /controls/flight/elevator " + elevator + " \n");
+		out.println("set /controls/engines/current-engine/throttle " + throttle + " \n");
+		out.println("set /controls/flight/rudder " + rudder + " \n");
 		out.flush();
 //		System.out.println("set " + path + " " + value);
 	}

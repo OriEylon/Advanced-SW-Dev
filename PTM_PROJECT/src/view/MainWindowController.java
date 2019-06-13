@@ -10,6 +10,8 @@ import java.util.Observer;
 import java.util.Scanner;
 
 import Model_Pack.Model;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
@@ -57,6 +59,8 @@ public class MainWindowController implements Observer {
 	Button open;
 	Scanner scanner;
 	StringProperty script;
+	DoubleProperty aileron;
+	DoubleProperty elevator;
 
 	double orgSceneX, orgSceneY;
 	double orgTranslateX, orgTranslateY;
@@ -69,7 +73,13 @@ public class MainWindowController implements Observer {
 	public MainWindowController() {
 		this.vm = new ViewModel(new Model());
 		script = new SimpleStringProperty();
+		aileron = new SimpleDoubleProperty();
+		elevator = new SimpleDoubleProperty();
 		vm.Script.bind(script);
+		vm.VMaileron.bind(aileron);
+		vm.VMelevator.bind(elevator);
+		// vm.VMrudder.bind(Rudder.valueProperty());
+		// vm.VMthrottle.bind(Throttle.valueProperty());
 	}
 
 	public void autopilot() {
@@ -113,6 +123,8 @@ public class MainWindowController implements Observer {
 				AutoPilot.setSelected(false);
 				manual.setSelected(true);
 			}
+			vm.VMrudder.bind(Rudder.valueProperty());
+			vm.VMthrottle.bind(Throttle.valueProperty());
 			sliders();
 		} else if (s.equals("autopilot")) {
 			if (manual.isSelected()) {
@@ -129,7 +141,7 @@ public class MainWindowController implements Observer {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 				if (manual.isSelected())
-					vm.getClient().send("/controls/engines/current-engine/throttle", newValue.doubleValue());
+					vm.send();
 //				System.out.println("set throttle " + newValue.doubleValue());
 			}
 		});
@@ -139,7 +151,7 @@ public class MainWindowController implements Observer {
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 				if (manual.isSelected())
-					vm.getClient().send("/controls/flight/rudder", newValue.doubleValue());
+					vm.send();
 //				System.out.println("set rudder " + newValue.doubleValue());
 			}
 		});
@@ -176,6 +188,7 @@ public class MainWindowController implements Observer {
 			orgSceneY = t.getSceneY();
 			orgTranslateX = ((Circle) (t.getSource())).getTranslateX();
 			orgTranslateY = ((Circle) (t.getSource())).getTranslateY();
+//			System.out.println("X : " + ((Circle) (t.getSource())).getTranslateX() + " " + " " + "Y :  " + ((Circle) (t.getSource())).getTranslateY());
 //			((Circle) (t.getSource())).toFront();
 		}
 	};
@@ -187,20 +200,42 @@ public class MainWindowController implements Observer {
 
 			double offsetX = t.getSceneX() - orgSceneX;
 			double offsetY = t.getSceneY() - orgSceneY;
-			if ((offsetX <= 60 && offsetX >= -60) && (offsetY <= 60 && offsetY >= -60)) {
-				double newTranslateX = orgTranslateX + offsetX;
-				double newTranslateY = orgTranslateY + offsetY;
+			double newTranslateX = orgTranslateX + offsetX;
+			double newTranslateY = orgTranslateY + offsetY;
+			double circleInCenterX = (((Circle) (t.getSource())).getCenterX());
+			double circleInCenterY = (((Circle) (t.getSource())).getCenterY());
+			double frameRadius = circleOut.getRadius();
 
+			double slant = Math
+					.sqrt(Math.pow(newTranslateX - circleInCenterX, 2) + Math.pow(newTranslateY - circleInCenterY, 2));
+
+			if (slant > frameRadius) {
+
+				double alpha = Math.atan((newTranslateY - circleInCenterY) / (newTranslateX - circleInCenterX));
+				if ((newTranslateX - circleInCenterX) < 0) {
+					alpha = alpha + Math.PI;
+
+				}
+				newTranslateX = Math.cos(alpha) * frameRadius + orgTranslateX;
+				newTranslateY = Math.sin(alpha) * frameRadius + orgTranslateY;
 				((Circle) (t.getSource())).setTranslateX(newTranslateX);
 				((Circle) (t.getSource())).setTranslateY(newTranslateY);
-//				((Circle) (t.getSource())).toFront();
-				if (manual.isSelected()) {
-					vm.getClient().send("/controls/flight/aileron", newTranslateY / 60);
-					vm.getClient().send("/controls/flight/elevator", newTranslateX / -60);
-				}
+//				System.out.println("x: " + newX + "  y: " + newY);
+			} else {
+				((Circle) (t.getSource())).setTranslateX(newTranslateX);
+				((Circle) (t.getSource())).setTranslateY(newTranslateY);
+//				System.out.println("x: " + newTranslateX + "  y: " + newTranslateY);
 			}
-
+			System.out.println("X : " + newTranslateX + " " + " " + "Y :  " + newTranslateY);
+			if (manual.isSelected()) {
+				aileron.set(newTranslateX);
+				elevator.set(newTranslateY);
+				vm.send();
+//				vm.getClient().send("/controls/flight/aileron", newTranslateY);
+//				vm.getClient().send("/controls/flight/elevator", newTranslateX);
+			}
 		}
+
 	};
 
 	EventHandler<MouseEvent> circleOnMouseReleaseEventHandler = new EventHandler<MouseEvent>() {
@@ -213,6 +248,7 @@ public class MainWindowController implements Observer {
 //			((Circle) (t.getSource())).toFront();
 //			vm.getClient().send("/controls/flight/aileron", 0.0);
 //			vm.getClient().send("/controls/flight/elevator", 0.0);
+
 		}
 	};
 
@@ -248,4 +284,5 @@ public class MainWindowController implements Observer {
 	public void update(Observable o, Object arg) {
 
 	}
+
 }
