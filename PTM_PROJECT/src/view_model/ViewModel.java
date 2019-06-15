@@ -17,20 +17,22 @@ public class ViewModel extends Observable implements Observer {
 	Model m;
 	ClientSim client = new ClientSim();
 	public StringProperty Script;
-	int Xcoordinate, Ycoordinate;
-	int scale;
 	public DoubleProperty VMaileron;
 	public DoubleProperty VMelevator;
 	public DoubleProperty VMrudder;
 	public DoubleProperty VMthrottle;
+	Double Xcoordinate, Ycoordinate;
+	Double scale;
+	String[][] smat;
+	Double[][] dmat;
 
-	public Model getM() {
-		return m;
-	}
+//	public Model getM() {
+//		return m;
+//	}
 
-	public ClientSim getClient() {
-		return client;
-	}
+//	public ClientSim getClient() {
+//		return client;
+//	}
 
 	public ViewModel(Model m) {
 		this.m = m;
@@ -50,28 +52,35 @@ public class ViewModel extends Observable implements Observer {
 		client.connect(ip, port);
 	}
 
-	public Double[][] readCSV(File file) {
+	public void readCSV(File file) {
 		Double max = 0.0, min = 0.0;
 		Double newmax = 255.0, newmin = 0.0;
+		int size = 0;
+		String firstline;
 		try {
 			Scanner scanner = new Scanner(file);
 			ArrayList<String> arr = new ArrayList<>();
-			Ycoordinate = scanner.nextInt();
-			Xcoordinate = scanner.nextInt();
-			scale = scanner.nextInt();
+			firstline = scanner.nextLine();
+			String[] line1 = firstline.split(",");
+			Ycoordinate = Double.parseDouble(line1[0]);
+			Xcoordinate = Double.parseDouble(line1[1]);
+			line1 = scanner.nextLine().split(",");
+			scale = Double.parseDouble(line1[0]);
 			while (scanner.hasNextLine()) {
 				arr.add(scanner.nextLine());
 			}
 
-			int size = arr.size();
-			String[][] smat = new String[size][];
-			Double[][] dmat = new Double[size][];
+			scanner.close();
+			size = arr.size();
+			smat = new String[size][];
+			dmat = new Double[size][];
 			for (int i = 0; i < size; i++) { // read all the file into a matrix
 				smat[i] = arr.get(i).split(",");
 			}
 
-			for (int i = 0; i < size; i++) { // convert the strings into an int matrix + get the max & min values
-				for (int j = 0; j < smat[j].length; j++) {
+			for (int i = 0; i < size; i++) { // convert the strings into a Double matrix + get the max & min values
+				dmat[i] = new Double[smat[i].length];
+				for (int j = 0; j < smat[i].length; j++) {
 					dmat[i][j] = Double.parseDouble(smat[i][j]);
 					if (max < dmat[i][j])
 						max = dmat[i][j];
@@ -81,24 +90,23 @@ public class ViewModel extends Observable implements Observer {
 			}
 
 			for (int i = 0; i < size; i++) { // normalize
-				for (int j = 0; j < smat[j].length; j++) {
+				for (int j = 0; j < smat[i].length; j++) {
 					dmat[i][j] = m.normalize(dmat[i][j], max, min, newmax, newmin);
 				}
 			}
-			scanner.close();
-			return dmat;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		return null;
+		setChanged();
+		notifyObservers(dmat);
 	}
 
 	public void send() {
 		Double ailron = m.normalize(VMaileron.get(), 76.0, -76.0, 1.0, -1.0);
-		Double elevator =(-1)*m.normalize(VMelevator.get(), 76.0, -76.0, 1.0, -1.0);
-		//Double throttle = m.normalize(VMthrottle.get(), 76.0, -76.0, 1.0, -1.0);
-		//Double rudder = m.normalize(VMrudder.get(), 76.0, -76.0, 1.0, -1.0);
-		System.out.println(ailron + " " +VMthrottle.getValue()+ " " +elevator+" "+VMrudder.getValue() );
+		Double elevator = (-1) * m.normalize(VMelevator.get(), 76.0, -76.0, 1.0, -1.0);
+		// Double throttle = m.normalize(VMthrottle.get(), 76.0, -76.0, 1.0, -1.0);
+		// Double rudder = m.normalize(VMrudder.get(), 76.0, -76.0, 1.0, -1.0);
+//		System.out.println(ailron + " " + elevator + " " + VMthrottle.getValue() + " " + VMrudder.getValue());
 		client.send(ailron, elevator, VMthrottle.getValue(), VMrudder.getValue());
 	}
 

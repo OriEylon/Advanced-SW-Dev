@@ -15,7 +15,6 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -30,6 +29,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import view_model.ViewModel;
 
@@ -57,27 +57,30 @@ public class MainWindowController implements Observer {
 	TextField Port;
 	@FXML
 	Button open;
+	@FXML
+	MapDisplayer mapDisplayer;
 	Scanner scanner;
 	StringProperty script;
 	DoubleProperty aileron;
 	DoubleProperty elevator;
-
+	Stage stage = new Stage();
 	double orgSceneX, orgSceneY;
 	double orgTranslateX, orgTranslateY;
 
 	// @FXML
 //	TextField VarBreaks, VarThrottle, VarHeading, VarAirspeed, VarRoll, VarPitch, VarRudder, VarAilron, VarElevetor,
 //			VarAlt, VarRpm, VarH0;
-	Stage stage = new Stage();
 
 	public MainWindowController() {
-		this.vm = new ViewModel(new Model());
+		vm = new ViewModel(new Model());
+		vm.addObserver(this);
 		script = new SimpleStringProperty();
 		aileron = new SimpleDoubleProperty();
 		elevator = new SimpleDoubleProperty();
 		vm.Script.bind(script);
 		vm.VMaileron.bind(aileron);
 		vm.VMelevator.bind(elevator);
+//		mapdisplayer=new mapDisplayer();
 		// vm.VMrudder.bind(Rudder.valueProperty());
 		// vm.VMthrottle.bind(Throttle.valueProperty());
 	}
@@ -93,7 +96,6 @@ public class MainWindowController implements Observer {
 
 	public void setVm(ViewModel vm) {
 		this.vm = vm;
-
 	}
 
 	public void load() {
@@ -107,7 +109,6 @@ public class MainWindowController implements Observer {
 					textarea.appendText(scanner.nextLine() + "\n");
 				}
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -136,24 +137,16 @@ public class MainWindowController implements Observer {
 	}
 
 	public void sliders() {
-		Throttle.valueProperty().addListener(new ChangeListener<Number>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				if (manual.isSelected())
-					vm.send();
+		Throttle.valueProperty().addListener((ChangeListener<Number>) (observable, oldValue, newValue) -> {
+			if (manual.isSelected())
+				vm.send();
 //				System.out.println("set throttle " + newValue.doubleValue());
-			}
 		});
 
-		Rudder.valueProperty().addListener(new ChangeListener<Number>() {
-
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				if (manual.isSelected())
-					vm.send();
+		Rudder.valueProperty().addListener((ChangeListener<Number>) (observable, oldValue, newValue) -> {
+			if (manual.isSelected())
+				vm.send();
 //				System.out.println("set rudder " + newValue.doubleValue());
-			}
 		});
 	}
 
@@ -166,7 +159,6 @@ public class MainWindowController implements Observer {
 			stage.setTitle("Connect");
 			stage.show();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -179,110 +171,95 @@ public class MainWindowController implements Observer {
 		stage.close();
 	}
 
-	EventHandler<MouseEvent> circleOnMousePressedEventHandler = new EventHandler<MouseEvent>() {
+	EventHandler<MouseEvent> circleOnMousePressedEventHandler = t -> {
 
-		@Override
-		public void handle(MouseEvent t) {
-
-			orgSceneX = t.getSceneX();
-			orgSceneY = t.getSceneY();
-			orgTranslateX = ((Circle) (t.getSource())).getTranslateX();
-			orgTranslateY = ((Circle) (t.getSource())).getTranslateY();
+		orgSceneX = t.getSceneX();
+		orgSceneY = t.getSceneY();
+		orgTranslateX = ((Circle) (t.getSource())).getTranslateX();
+		orgTranslateY = ((Circle) (t.getSource())).getTranslateY();
 //			System.out.println("X : " + ((Circle) (t.getSource())).getTranslateX() + " " + " " + "Y :  " + ((Circle) (t.getSource())).getTranslateY());
 //			((Circle) (t.getSource())).toFront();
-		}
 	};
 
-	EventHandler<MouseEvent> circleOnMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
+	EventHandler<MouseEvent> circleOnMouseDraggedEventHandler = t -> {
 
-		@Override
-		public void handle(MouseEvent t) {
+		double offsetX = t.getSceneX() - orgSceneX;
+		double offsetY = t.getSceneY() - orgSceneY;
+		double newTranslateX = orgTranslateX + offsetX;
+		double newTranslateY = orgTranslateY + offsetY;
+		double circleInCenterX = (((Circle) (t.getSource())).getCenterX());
+		double circleInCenterY = (((Circle) (t.getSource())).getCenterY());
+		double circleOutRadius = circleOut.getRadius();
+		double pi = Math.PI;
+		double slant = Math
+				.sqrt(Math.pow(newTranslateX - circleInCenterX, 2) + Math.pow(newTranslateY - circleInCenterY, 2));
 
-			double offsetX = t.getSceneX() - orgSceneX;
-			double offsetY = t.getSceneY() - orgSceneY;
-			double newTranslateX = orgTranslateX + offsetX;
-			double newTranslateY = orgTranslateY + offsetY;
-			double circleInCenterX = (((Circle) (t.getSource())).getCenterX());
-			double circleInCenterY = (((Circle) (t.getSource())).getCenterY());
-			double frameRadius = circleOut.getRadius();
+		if (slant > circleOutRadius) {
 
-			double slant = Math
-					.sqrt(Math.pow(newTranslateX - circleInCenterX, 2) + Math.pow(newTranslateY - circleInCenterY, 2));
+			double alpha = Math.atan((newTranslateY - circleInCenterY) / (newTranslateX - circleInCenterX));
+			if ((newTranslateX - circleInCenterX) < 0) {
+				alpha += pi;
 
-			if (slant > frameRadius) {
-
-				double alpha = Math.atan((newTranslateY - circleInCenterY) / (newTranslateX - circleInCenterX));
-				if ((newTranslateX - circleInCenterX) < 0) {
-					alpha = alpha + Math.PI;
-
-				}
-				newTranslateX = Math.cos(alpha) * frameRadius + orgTranslateX;
-				newTranslateY = Math.sin(alpha) * frameRadius + orgTranslateY;
-				((Circle) (t.getSource())).setTranslateX(newTranslateX);
-				((Circle) (t.getSource())).setTranslateY(newTranslateY);
-//				System.out.println("x: " + newX + "  y: " + newY);
-			} else {
-				((Circle) (t.getSource())).setTranslateX(newTranslateX);
-				((Circle) (t.getSource())).setTranslateY(newTranslateY);
-//				System.out.println("x: " + newTranslateX + "  y: " + newTranslateY);
 			}
-			System.out.println("X : " + newTranslateX + " " + " " + "Y :  " + newTranslateY);
-			if (manual.isSelected()) {
-				aileron.set(newTranslateX);
-				elevator.set(newTranslateY);
-				vm.send();
+			newTranslateX = Math.cos(alpha) * circleOutRadius + orgTranslateX;
+			newTranslateY = Math.sin(alpha) * circleOutRadius + orgTranslateY;
+			((Circle) (t.getSource())).setTranslateX(newTranslateX);
+			((Circle) (t.getSource())).setTranslateY(newTranslateY);
+//				System.out.println("x: " + newX + "  y: " + newY);
+		} else {
+			((Circle) (t.getSource())).setTranslateX(newTranslateX);
+			((Circle) (t.getSource())).setTranslateY(newTranslateY);
+//				System.out.println("x: " + newTranslateX + "  y: " + newTranslateY);
+		}
+//		System.out.println("X : " + newTranslateX + " " + " " + "Y :  " + newTranslateY);
+		if (manual.isSelected()) {
+			aileron.set(newTranslateX);
+			elevator.set(newTranslateY);
+			vm.send();
 //				vm.getClient().send("/controls/flight/aileron", newTranslateY);
 //				vm.getClient().send("/controls/flight/elevator", newTranslateX);
-			}
 		}
-
 	};
 
-	EventHandler<MouseEvent> circleOnMouseReleaseEventHandler = new EventHandler<MouseEvent>() {
+	EventHandler<MouseEvent> circleOnMouseReleaseEventHandler = t -> {
 
-		@Override
-		public void handle(MouseEvent t) {
-
-			((Circle) (t.getSource())).setTranslateX(((Circle) (t.getSource())).getCenterX());
-			((Circle) (t.getSource())).setTranslateY(((Circle) (t.getSource())).getCenterY());
+		((Circle) (t.getSource())).setTranslateX(((Circle) (t.getSource())).getCenterX());
+		((Circle) (t.getSource())).setTranslateY(((Circle) (t.getSource())).getCenterY());
 //			((Circle) (t.getSource())).toFront();
 //			vm.getClient().send("/controls/flight/aileron", 0.0);
 //			vm.getClient().send("/controls/flight/elevator", 0.0);
 
-		}
 	};
 
 	public void OnPress() {
-
 		circleIn.setOnMousePressed(circleOnMousePressedEventHandler);
-
 	}
 
 	public void OnDragg() {
-
 		circleIn.setOnMouseDragged(circleOnMouseDraggedEventHandler);
-
 	}
 
 	public void OnRelease() {
-
 		circleIn.setOnMouseReleased(circleOnMouseReleaseEventHandler);
-
 	}
 
 	public void LoadData() {
 		FileChooser fc = new FileChooser();
-		fc.setTitle("Load map.csv");
+		fc.setTitle("Load map");
+		fc.getExtensionFilters().add(new ExtensionFilter("CSV files", "*.csv"));
 		fc.setInitialDirectory(new File("C:\\Users\\Ori\\GitHub\\Advanced-SW-Dev\\PTM_PROJECT"));
 		File selected = fc.showOpenDialog(null);
 		if (selected != null) {
 			vm.readCSV(selected);
 		}
+//		mapdisplayer.setMapData();
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
-
+		if (arg.getClass() == Double[][].class) {
+			mapDisplayer.setMapData((Double[][]) arg);
+		}
 	}
 
 }
