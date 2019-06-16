@@ -12,15 +12,17 @@
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.layout.BorderPane?>
+<?import view.MapDisplayer?>
+<?import view.PlaneDisplayer?>
+
 
 <BorderPane prefHeight="285.0" prefWidth="681.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.MainWindowController">
-   <right>
+   <center>
       <AnchorPane prefHeight="287.0" prefWidth="692.0" BorderPane.alignment="CENTER">
          <children>
             <Button layoutX="8.0" layoutY="22.0" mnemonicParsing="false" onAction="#connectButton" text="Connect" />
             <Button layoutX="74.0" layoutY="22.0" mnemonicParsing="false" onAction="#LoadData" text="Load Data" />
-            <Button layoutX="150.0" layoutY="22.0" mnemonicParsing="false" text="Calculate Path" />
+            <Button layoutX="150.0" layoutY="22.0" mnemonicParsing="false" onAction="#calcPath" text="Calculate Path" />
             <RadioButton fx:id="AutoPilot" layoutX="266.0" layoutY="26.0" mnemonicParsing="false" onAction="#autopilot" text="Autopilot">
                <font>
                   <Font name="System Bold" size="13.0" />
@@ -46,7 +48,7 @@
                   </Lighting>
                </effect>
             </Circle>
-            <Slider fx:id="Rudder" layoutX="517.0" layoutY="243.0" majorTickUnit="0.1" max="1.0" min="-1.0" showTickLabels="true" showTickMarks="true" />
+            <Slider fx:id="Rudder" layoutX="517.0" layoutY="243.0" majorTickUnit="0.05" max="1.0" min="-1.0" showTickLabels="true" showTickMarks="true" />
             <Slider fx:id="Throttle" layoutX="476.0" layoutY="80.0" majorTickUnit="0.1" max="1.0" orientation="VERTICAL" showTickLabels="true" showTickMarks="true" />
             <Text boundsType="VISUAL" layoutX="444.0" layoutY="150.0" rotate="-90.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Throttle" textOrigin="CENTER" wrappingWidth="57.8291015625">
                <font>
@@ -91,8 +93,8 @@
                </image>
             </ImageView>
             <MapDisplayer fx:id="mapDisplayer" height="200.0" layoutX="8.0" layoutY="65.0" width="235.0" />
-            <Canvas height="200.0" layoutX="8.0" layoutY="65.0" width="235.0" />
+            <PlaneDisplayer fx:id="planeDisplayer" height="200.0" layoutX="8.0" layoutY="65.0" planeFileName="./plane_icon.jpg" width="235.0" />
          </children>
       </AnchorPane>
-   </right>
+   </center>
 </BorderPane>

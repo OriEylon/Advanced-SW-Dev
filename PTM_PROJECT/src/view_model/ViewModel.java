@@ -15,14 +15,15 @@ import javafx.beans.property.StringProperty;
 
 public class ViewModel extends Observable implements Observer {
 	Model m;
-	ClientSim client = new ClientSim();
+//	ClientSim client = new ClientSim();
 	public StringProperty Script;
 	public DoubleProperty VMaileron;
 	public DoubleProperty VMelevator;
 	public DoubleProperty VMrudder;
 	public DoubleProperty VMthrottle;
-	Double Xcoordinate, Ycoordinate;
-	Double scale;
+	public DoubleProperty VMXcoordinate, VMYcoordinate;
+	public DoubleProperty VMscale;
+	public DoubleProperty VMlongitude, VMlatitude;
 	String[][] smat;
 	Double[][] dmat;
 
@@ -41,7 +42,13 @@ public class ViewModel extends Observable implements Observer {
 		VMthrottle = new SimpleDoubleProperty();
 		VMaileron = new SimpleDoubleProperty();
 		VMelevator = new SimpleDoubleProperty();
+		VMXcoordinate = new SimpleDoubleProperty();
+		VMYcoordinate = new SimpleDoubleProperty();
+		VMscale = new SimpleDoubleProperty();
+		VMlongitude = new SimpleDoubleProperty();
+		VMlatitude = new SimpleDoubleProperty();
 		m.s.bind(Script);
+		m.addObserver(this);
 	}
 
 	public void interpet(StringProperty s) {
@@ -49,7 +56,7 @@ public class ViewModel extends Observable implements Observer {
 	}
 
 	public void connect(String ip, int port) {
-		client.connect(ip, port);
+		m.connect(ip, port);
 	}
 
 	public void readCSV(File file) {
@@ -62,10 +69,10 @@ public class ViewModel extends Observable implements Observer {
 			ArrayList<String> arr = new ArrayList<>();
 			firstline = scanner.nextLine();
 			String[] line1 = firstline.split(",");
-			Ycoordinate = Double.parseDouble(line1[0]);
-			Xcoordinate = Double.parseDouble(line1[1]);
+			VMYcoordinate.setValue(Double.parseDouble(line1[0]));
+			VMXcoordinate.setValue(Double.parseDouble(line1[1]));
 			line1 = scanner.nextLine().split(",");
-			scale = Double.parseDouble(line1[0]);
+			VMscale.setValue(Double.parseDouble(line1[0]));
 			while (scanner.hasNextLine()) {
 				arr.add(scanner.nextLine());
 			}
@@ -107,12 +114,29 @@ public class ViewModel extends Observable implements Observer {
 		// Double throttle = m.normalize(VMthrottle.get(), 76.0, -76.0, 1.0, -1.0);
 		// Double rudder = m.normalize(VMrudder.get(), 76.0, -76.0, 1.0, -1.0);
 //		System.out.println(ailron + " " + elevator + " " + VMthrottle.getValue() + " " + VMrudder.getValue());
-		client.send(ailron, elevator, VMthrottle.getValue(), VMrudder.getValue());
+		m.send(ailron, elevator, VMthrottle.getValue(), VMrudder.getValue());
 	}
+
+	public void calcPath(String ip, int port) {
+		m.calcPath(ip, port, dmat, VMXcoordinate.get(), VMYcoordinate.get(), VMscale.get());
+	}
+
+//	public void getPlanePos() {
+//
+//		VMlatitude.setValue(m.getLat());
+//		VMlongitude.setValue(m.getLongi());
+//
+//	}
 
 	@Override
 	public void update(Observable o, Object arg) {
-
+		if (o.getClass() == Model.class) {
+			VMlongitude.set(m.getLongi());
+			VMlatitude.set(m.getLat());
+			System.out.println("update:: " + "long: " + VMlongitude.getValue() + " lat:" + VMlatitude.getValue());
+			setChanged();
+			notifyObservers(VMlongitude);
+		}
 	}
 
 }

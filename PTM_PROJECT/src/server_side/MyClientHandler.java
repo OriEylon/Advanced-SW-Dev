@@ -14,6 +14,11 @@ public class MyClientHandler implements ClientHandler {
 	
 	private Solver solver;
 	private CacheManager cm;
+	int[][] mat;
+	
+	public void setMat(int[][] mat) {
+		this.mat = mat;
+	}
 	
 	@Override
 	public void handleClient(InputStream in, OutputStream out) {
@@ -24,7 +29,7 @@ public class MyClientHandler implements ClientHandler {
 		String solved;
 		int rows=0;
 		int cols=0;
-		int[][] mat;
+//		int[][] mat;
 		StringBuilder sb=new StringBuilder();
 		String[] stringArr=null;
 		String[] stringArr2 = null;

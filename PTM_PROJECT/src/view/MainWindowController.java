@@ -59,6 +59,8 @@ public class MainWindowController implements Observer {
 	Button open;
 	@FXML
 	MapDisplayer mapDisplayer;
+	@FXML
+	PlaneDisplayer planeDisplayer;
 	Scanner scanner;
 	StringProperty script;
 	DoubleProperty aileron;
@@ -66,7 +68,8 @@ public class MainWindowController implements Observer {
 	Stage stage = new Stage();
 	double orgSceneX, orgSceneY;
 	double orgTranslateX, orgTranslateY;
-
+	DoubleProperty Xcoordinate, Ycoordinate, scale, longitude, latitude;
+	static String who = "";
 	// @FXML
 //	TextField VarBreaks, VarThrottle, VarHeading, VarAirspeed, VarRoll, VarPitch, VarRudder, VarAilron, VarElevetor,
 //			VarAlt, VarRpm, VarH0;
@@ -77,12 +80,19 @@ public class MainWindowController implements Observer {
 		script = new SimpleStringProperty();
 		aileron = new SimpleDoubleProperty();
 		elevator = new SimpleDoubleProperty();
+		Xcoordinate = new SimpleDoubleProperty();
+		Ycoordinate = new SimpleDoubleProperty();
+		scale = new SimpleDoubleProperty();
+		longitude = new SimpleDoubleProperty();
+		latitude = new SimpleDoubleProperty();
 		vm.Script.bind(script);
 		vm.VMaileron.bind(aileron);
 		vm.VMelevator.bind(elevator);
-//		mapdisplayer=new mapDisplayer();
-		// vm.VMrudder.bind(Rudder.valueProperty());
-		// vm.VMthrottle.bind(Throttle.valueProperty());
+		Xcoordinate.bind(vm.VMXcoordinate);
+		Ycoordinate.bind(vm.VMYcoordinate);
+		scale.bind(vm.VMscale);
+		longitude.bind(vm.VMlongitude);
+		latitude.bind(vm.VMlatitude);
 	}
 
 	public void autopilot() {
@@ -151,6 +161,11 @@ public class MainWindowController implements Observer {
 	}
 
 	public void connectButton() {
+		who = "connect";
+		Popup();
+	}
+
+	public void Popup() {
 		Parent root;
 		try {
 			root = FXMLLoader.load(getClass().getResource("popup.fxml"));
@@ -164,7 +179,11 @@ public class MainWindowController implements Observer {
 	}
 
 	public void openButton() {
-		vm.connect(IP.getText(), Integer.parseInt(Port.getText()));
+		if (who.equals("connect")) {
+			vm.connect(IP.getText(), Integer.parseInt(Port.getText()));
+		} else
+			vm.calcPath(IP.getText(), Integer.parseInt(Port.getText()));
+
 		Stage stage = (Stage) open.getScene().getWindow();
 		IP.clear();
 		Port.clear();
@@ -251,14 +270,26 @@ public class MainWindowController implements Observer {
 		File selected = fc.showOpenDialog(null);
 		if (selected != null) {
 			vm.readCSV(selected);
+
 		}
 //		mapdisplayer.setMapData();
+
+	}
+
+	public void calcPath() {
+		who = "calcPath";
+		Popup();
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
 		if (arg.getClass() == Double[][].class) {
 			mapDisplayer.setMapData((Double[][]) arg);
+			planeDisplayer.setMapdata((Double[][]) arg);
+			planeDisplayer.drawPlane(21.0, 158.0);
+		} else {
+			System.out.println("view update:: longi: " + longitude.getValue() + " alt: " + longitude.getValue());
+			planeDisplayer.drawPlane(latitude.getValue(), longitude.getValue());
 		}
 	}
 
