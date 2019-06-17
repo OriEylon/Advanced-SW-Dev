@@ -14,6 +14,7 @@
 <?import javafx.scene.layout.*?>
 <?import view.MapDisplayer?>
 <?import view.PlaneDisplayer?>
+<?import view.MarkDisplayer?>
 
 
 <BorderPane prefHeight="285.0" prefWidth="681.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.MainWindowController">
@@ -94,6 +95,7 @@
             </ImageView>
             <MapDisplayer fx:id="mapDisplayer" height="200.0" layoutX="8.0" layoutY="65.0" width="235.0" />
             <PlaneDisplayer fx:id="planeDisplayer" height="200.0" layoutX="8.0" layoutY="65.0" planeFileName="./plane_icon.jpg" width="235.0" />
+            <MarkDisplayer fx:id="markDisplayer" height="200.0" layoutX="8.0" layoutY="65.0" width="235.0" onMouseClicked="#OnMark"  markFileName="./mark.png" />
          </children>
       </AnchorPane>
    </center>

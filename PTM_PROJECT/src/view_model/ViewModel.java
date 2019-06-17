@@ -23,20 +23,12 @@ public class ViewModel extends Observable implements Observer {
 	public DoubleProperty VMthrottle;
 	public DoubleProperty VMXcoordinate, VMYcoordinate;
 	public DoubleProperty VMscale;
-	public DoubleProperty VMlongitude, VMlatitude;
+	public DoubleProperty VMlongitude, VMlatitude, VMmarkX, VMmarkY, VMh, VMw;
 	String[][] smat;
 	Double[][] dmat;
 
-//	public Model getM() {
-//		return m;
-//	}
-
-//	public ClientSim getClient() {
-//		return client;
-//	}
-
-	public ViewModel(Model m) {
-		this.m = m;
+	public ViewModel() {
+		m = new Model();
 		Script = new SimpleStringProperty();
 		VMrudder = new SimpleDoubleProperty();
 		VMthrottle = new SimpleDoubleProperty();
@@ -47,8 +39,20 @@ public class ViewModel extends Observable implements Observer {
 		VMscale = new SimpleDoubleProperty();
 		VMlongitude = new SimpleDoubleProperty();
 		VMlatitude = new SimpleDoubleProperty();
-		m.s.bind(Script);
-		m.addObserver(this);
+		VMmarkX = new SimpleDoubleProperty();
+		VMmarkY = new SimpleDoubleProperty();
+		VMh = new SimpleDoubleProperty();
+		VMw = new SimpleDoubleProperty();
+	}
+
+	public Model getM() {
+		return m;
+	}
+
+	public void setM(Model model) {
+		this.m = model;
+		// m.addObserver(this);
+		this.m.s.bind(Script);
 	}
 
 	public void interpet(StringProperty s) {
@@ -117,8 +121,10 @@ public class ViewModel extends Observable implements Observer {
 		m.send(ailron, elevator, VMthrottle.getValue(), VMrudder.getValue());
 	}
 
-	public void calcPath(String ip, int port) {
-		m.calcPath(ip, port, dmat, VMXcoordinate.get(), VMYcoordinate.get(), VMscale.get());
+	public void calcPath(String ip, int port, Double markx, Double marky) {
+		// VMmarkX.set(markx);
+		// VMmarkY.set(marky);
+		m.calcPath(ip, port, dmat, VMmarkX.get() , VMmarkY.get() );
 	}
 
 //	public void getPlanePos() {
@@ -128,12 +134,18 @@ public class ViewModel extends Observable implements Observer {
 //
 //	}
 
+	public void LoadData() {
+
+		m.LoadData();
+
+	}
+
 	@Override
 	public void update(Observable o, Object arg) {
 		if (o.getClass() == Model.class) {
 			VMlongitude.set(m.getLongi());
 			VMlatitude.set(m.getLat());
-			System.out.println("update:: " + "long: " + VMlongitude.getValue() + " lat:" + VMlatitude.getValue());
+//			System.out.println("update:: " + "long: " + VMlongitude.getValue() + " lat:" + VMlatitude.getValue());
 			setChanged();
 			notifyObservers(VMlongitude);
 		}

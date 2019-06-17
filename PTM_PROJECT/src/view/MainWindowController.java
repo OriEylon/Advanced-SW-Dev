@@ -9,7 +9,6 @@ import java.util.Observable;
 import java.util.Observer;
 import java.util.Scanner;
 
-import Model_Pack.Model;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -61,6 +60,8 @@ public class MainWindowController implements Observer {
 	MapDisplayer mapDisplayer;
 	@FXML
 	PlaneDisplayer planeDisplayer;
+	@FXML
+	MarkDisplayer markDisplayer;
 	Scanner scanner;
 	StringProperty script;
 	DoubleProperty aileron;
@@ -68,15 +69,19 @@ public class MainWindowController implements Observer {
 	Stage stage = new Stage();
 	double orgSceneX, orgSceneY;
 	double orgTranslateX, orgTranslateY;
-	DoubleProperty Xcoordinate, Ycoordinate, scale, longitude, latitude;
+	DoubleProperty Xcoordinate, Ycoordinate, scale, longitude, latitude, markX, markY;
 	static String who = "";
+	boolean clicked = false;
+	Double[][] mat;
+	DoubleProperty h, w;
 	// @FXML
 //	TextField VarBreaks, VarThrottle, VarHeading, VarAirspeed, VarRoll, VarPitch, VarRudder, VarAilron, VarElevetor,
 //			VarAlt, VarRpm, VarH0;
 
 	public MainWindowController() {
-		vm = new ViewModel(new Model());
-		vm.addObserver(this);
+//		vm = new ViewModel(new Model());
+//		vm.addObserver(this);
+		vm = new ViewModel();
 		script = new SimpleStringProperty();
 		aileron = new SimpleDoubleProperty();
 		elevator = new SimpleDoubleProperty();
@@ -85,6 +90,14 @@ public class MainWindowController implements Observer {
 		scale = new SimpleDoubleProperty();
 		longitude = new SimpleDoubleProperty();
 		latitude = new SimpleDoubleProperty();
+		markX = new SimpleDoubleProperty();
+		markY = new SimpleDoubleProperty();
+		h = new SimpleDoubleProperty();
+		w = new SimpleDoubleProperty();
+	}
+
+	public void setVm(ViewModel viewmodel) {
+		this.vm = viewmodel;
 		vm.Script.bind(script);
 		vm.VMaileron.bind(aileron);
 		vm.VMelevator.bind(elevator);
@@ -93,6 +106,10 @@ public class MainWindowController implements Observer {
 		scale.bind(vm.VMscale);
 		longitude.bind(vm.VMlongitude);
 		latitude.bind(vm.VMlatitude);
+		this.markX.bindBidirectional(vm.VMmarkX);
+		this.markY.bindBidirectional(vm.VMmarkY);
+		h.bindBidirectional(vm.VMh);
+		w.bindBidirectional(vm.VMw);
 	}
 
 	public void autopilot() {
@@ -102,10 +119,6 @@ public class MainWindowController implements Observer {
 	public void exeAutopilot() {
 		script = textarea.textProperty();
 		vm.interpet(script);
-	}
-
-	public void setVm(ViewModel vm) {
-		this.vm = vm;
 	}
 
 	public void load() {
@@ -168,7 +181,17 @@ public class MainWindowController implements Observer {
 	public void Popup() {
 		Parent root;
 		try {
-			root = FXMLLoader.load(getClass().getResource("popup.fxml"));
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Popup.fxml"));
+			root = fxmlLoader.load();
+			MainWindowController fc = fxmlLoader.getController();
+			fc.vm = this.vm;
+			fc.mat = this.mat;
+			fc.markX = this.markX;
+			fc.markY = this.markY;
+			fc.h = this.h;
+			fc.w = this.w;
+			fc.clicked = this.clicked;
+
 			Scene scene = new Scene(root);
 			stage.setScene(scene);
 			stage.setTitle("Connect");
@@ -182,7 +205,7 @@ public class MainWindowController implements Observer {
 		if (who.equals("connect")) {
 			vm.connect(IP.getText(), Integer.parseInt(Port.getText()));
 		} else
-			vm.calcPath(IP.getText(), Integer.parseInt(Port.getText()));
+			vm.calcPath(IP.getText(), Integer.parseInt(Port.getText()), markX.get(), markY.get());
 
 		Stage stage = (Stage) open.getScene().getWindow();
 		IP.clear();
@@ -250,6 +273,15 @@ public class MainWindowController implements Observer {
 
 	};
 
+	EventHandler<MouseEvent> MapPressed = event -> {
+		markX.setValue(event.getX());
+		markY.setValue(event.getY());
+		markDisplayer.drawMark(markX.getValue(), markY.getValue());
+		if (clicked) {
+
+		}
+	};
+
 	public void OnPress() {
 		circleIn.setOnMousePressed(circleOnMousePressedEventHandler);
 	}
@@ -262,6 +294,10 @@ public class MainWindowController implements Observer {
 		circleIn.setOnMouseReleased(circleOnMouseReleaseEventHandler);
 	}
 
+	public void OnMark() {
+		markDisplayer.setOnMouseClicked(MapPressed);
+	}
+
 	public void LoadData() {
 		FileChooser fc = new FileChooser();
 		fc.setTitle("Load map");
@@ -271,25 +307,30 @@ public class MainWindowController implements Observer {
 		if (selected != null) {
 			vm.readCSV(selected);
 
+			vm.LoadData();
+
 		}
-//		mapdisplayer.setMapData();
 
 	}
 
 	public void calcPath() {
 		who = "calcPath";
+		clicked = true;
 		Popup();
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
 		if (arg.getClass() == Double[][].class) {
+			this.mat = (Double[][]) arg;
 			mapDisplayer.setMapData((Double[][]) arg);
 			planeDisplayer.setMapdata((Double[][]) arg);
-			planeDisplayer.drawPlane(21.0, 158.0);
+			markDisplayer.setMapData((Double[][]) arg);
+//			planeDisplayer.drawPlane(21.0, 158.0);
 		} else {
-			System.out.println("view update:: longi: " + longitude.getValue() + " alt: " + longitude.getValue());
-			planeDisplayer.drawPlane(latitude.getValue(), longitude.getValue());
+			planeDisplayer.drawPlane(longitude.getValue(), latitude.getValue());
+//			System.out.println("view update:: longi: " + longitude.getValue() + " alt: " + latitude.getValue());
+//			planeDisplayer.toFront();
 		}
 	}
 

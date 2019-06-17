@@ -59,6 +59,11 @@ public class MyClientHandler implements ClientHandler {
 			mat=new int[array.size()][array.get(0).length];
 			for(int i=0;i<mat.length;i++) {
 				for(int j=0;j<mat[i].length;j++) {
+					if(array.get(i)[j].contains(".")) {
+						int temp=(int) Double.parseDouble(array.get(i)[j]);
+						mat[i][j]=temp;
+					}
+					else
 					mat[i][j]=Integer.parseInt(array.get(i)[j]);
 //					mat[i][j]=Integer.parseInt(stringArr[counter]);
 //				 	counter++;

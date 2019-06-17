@@ -8,8 +8,8 @@ public class MapDisplayer extends Canvas {
 	Double[][] mapData;
 	Double Height;
 	Double Width;
-	Double h;
-	Double w;
+	public Double h;
+	public Double w;
 
 	public void setMapData(Double[][] mapData) {
 		this.mapData = mapData;

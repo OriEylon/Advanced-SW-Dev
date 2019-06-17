@@ -81,7 +81,6 @@ public class Matrix implements Searchable {
 		if(!matrix[x-1][y].equals(dummy)) { //up 
 			if(matrix[x-1][y]!=s.getCameFrom())	//if its where we came from,dont add
 			list.add(matrix[x-1][y]);
-			
 		}
 		if(!matrix[x+1][y].equals(dummy)) { //down
 			if(matrix[x+1][y]!=s.getCameFrom())

@@ -29,7 +29,6 @@ public class MySerialServer implements Server {
 				Thread.currentThread().setName("My serial server Thread");
 				RunServer();
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}).start();
@@ -43,7 +42,7 @@ public class MySerialServer implements Server {
 
 	public void RunServer() throws IOException {
 		ServerSocket server = new ServerSocket(port);
-		server.setSoTimeout(300000);
+		server.setSoTimeout(0);
 		while (!stop) {
 			try {
 				System.out.println("waiting for client");
