@@ -19,6 +19,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
@@ -26,6 +27,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -63,7 +65,7 @@ public class MainWindowController implements Observer {
 	@FXML
 	MarkDisplayer markDisplayer;
 	Scanner scanner;
-	StringProperty script;
+	StringProperty script, ip, port;
 	DoubleProperty aileron;
 	DoubleProperty elevator;
 	Stage stage = new Stage();
@@ -71,9 +73,10 @@ public class MainWindowController implements Observer {
 	double orgTranslateX, orgTranslateY;
 	DoubleProperty Xcoordinate, Ycoordinate, scale, longitude, latitude, markX, markY;
 	static String who = "";
-	boolean clicked = false;
+	public static boolean clicked = false;
 	Double[][] mat;
 	DoubleProperty h, w;
+	String[] solution;
 	// @FXML
 //	TextField VarBreaks, VarThrottle, VarHeading, VarAirspeed, VarRoll, VarPitch, VarRudder, VarAilron, VarElevetor,
 //			VarAlt, VarRpm, VarH0;
@@ -94,6 +97,8 @@ public class MainWindowController implements Observer {
 		markY = new SimpleDoubleProperty();
 		h = new SimpleDoubleProperty();
 		w = new SimpleDoubleProperty();
+		ip = new SimpleStringProperty();
+		port = new SimpleStringProperty();
 	}
 
 	public void setVm(ViewModel viewmodel) {
@@ -110,6 +115,8 @@ public class MainWindowController implements Observer {
 		this.markY.bindBidirectional(vm.VMmarkY);
 		h.bindBidirectional(vm.VMh);
 		w.bindBidirectional(vm.VMw);
+		ip.bindBidirectional(vm.ip);
+		port.bindBidirectional(vm.port);
 	}
 
 	public void autopilot() {
@@ -188,9 +195,11 @@ public class MainWindowController implements Observer {
 			fc.mat = this.mat;
 			fc.markX = this.markX;
 			fc.markY = this.markY;
+			fc.mapDisplayer = this.mapDisplayer;
 			fc.h = this.h;
 			fc.w = this.w;
-			fc.clicked = this.clicked;
+			fc.ip = this.ip;
+			fc.port = this.port;
 
 			Scene scene = new Scene(root);
 			stage.setScene(scene);
@@ -202,12 +211,15 @@ public class MainWindowController implements Observer {
 	}
 
 	public void openButton() {
+		ip.set(IP.getText());
+		port.set(Port.getText());
 		if (who.equals("connect")) {
 			vm.connect(IP.getText(), Integer.parseInt(Port.getText()));
 		} else
-			vm.calcPath(IP.getText(), Integer.parseInt(Port.getText()), markX.get(), markY.get());
+			vm.calcPath(ip.get(), Integer.parseInt(port.get()), markX.get(), markY.get());
 
 		Stage stage = (Stage) open.getScene().getWindow();
+
 		IP.clear();
 		Port.clear();
 		stage.close();
@@ -277,8 +289,9 @@ public class MainWindowController implements Observer {
 		markX.setValue(event.getX());
 		markY.setValue(event.getY());
 		markDisplayer.drawMark(markX.getValue(), markY.getValue());
+//		draw path
 		if (clicked) {
-
+			vm.recalc(markX.get(), markY.get());
 		}
 	};
 
@@ -319,6 +332,46 @@ public class MainWindowController implements Observer {
 		Popup();
 	}
 
+	public void drawLine() {
+		double H = markDisplayer.getHeight();
+		double W = markDisplayer.getWidth();
+		double h = H / mat.length;
+		double w = W / mat[0].length;
+		GraphicsContext gc = markDisplayer.getGraphicsContext2D();
+		String move = solution[1];
+		double x = longitude.getValue() * w + 10 * w;
+		double y = latitude.getValue() * -h + 6 * h;
+		int count = 0;
+		// gc.setStroke(Color.BLACK);
+		// gc.strokeLine(x,y,markSceneX.getValue(),markSceneY.getValue());
+
+		for (int i = 2; i < solution.length; i++) {
+			switch (move) {
+			case "Right":
+
+				gc.strokeLine(x, y, x + w, y);
+				x += w;
+				break;
+			case "Left":
+
+				gc.strokeLine(x, y, x - w, y);
+				x -= w;
+				break;
+			case "Up":
+
+				gc.strokeLine(x, y, x, y - h);
+				y -= h;
+				break;
+			case "Down":
+
+				gc.strokeLine(x, y, x, y + h);
+				y += h;
+			}
+			move = solution[i];
+		}
+
+	}
+
 	@Override
 	public void update(Observable o, Object arg) {
 		if (arg.getClass() == Double[][].class) {
@@ -326,12 +379,21 @@ public class MainWindowController implements Observer {
 			mapDisplayer.setMapData((Double[][]) arg);
 			planeDisplayer.setMapdata((Double[][]) arg);
 			markDisplayer.setMapData((Double[][]) arg);
+			h.set(mapDisplayer.h);
+			w.set(mapDisplayer.w);
 //			planeDisplayer.drawPlane(21.0, 158.0);
-		} else {
+		}
+
+		else if (arg.getClass() == String[].class) {
+			this.solution = (String[]) arg;
+			this.drawLine();
+		}
+		else {
 			planeDisplayer.drawPlane(longitude.getValue(), latitude.getValue());
 //			System.out.println("view update:: longi: " + longitude.getValue() + " alt: " + latitude.getValue());
 //			planeDisplayer.toFront();
 		}
+
 	}
 
 }

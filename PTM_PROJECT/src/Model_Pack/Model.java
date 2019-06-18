@@ -10,6 +10,7 @@ import interpeter.Lexer;
 import interpeter.interpeter;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import view.MainWindowController;
 
 public class Model extends Observable {
 	interpeter i;
@@ -30,6 +31,8 @@ public class Model extends Observable {
 	Double initY = 21.443738;
 	Integer markX, markY;
 	String[] solution;
+	String ip;
+	int port;
 	// Server server;
 
 	public Model() {
@@ -47,22 +50,14 @@ public class Model extends Observable {
 		return (x - min) / (max - min) * (newmax - newmin) + newmin;
 	}
 
-//	public void reCalc() {
-//		int i = 0, j = 0;
-//		for (i = 0; i < mat.length; i++) {
-//			for (j = 0; j < mat[i].length - 1; j++) {
-//				out.print(mat[i][j] + ",");
-////				out.flush();
-//			}
-//			out.println(mat[i][j]);
-//		}
-//		out.println("end");
-//		out.println(initx + "," + inity);
-////		goal
-//		out.flush();
-//	}
+	public void reCalc(Double markX, Double markY) {
+		calcPath(ip, port, mat, markX, markY);
+	}
 
 	public void calcPath(String ip, int port, Double[][] mat, Double markX, Double markY) {
+
+		this.ip = ip;
+		this.port = port;
 		connect2server(ip, port);
 		this.markX = (int) Math.abs(Math.floor(markX));
 		this.markY = (int) Math.abs(Math.floor(markY));
@@ -81,7 +76,7 @@ public class Model extends Observable {
 				Sout.println(mat[i][j]);
 			}
 			Sout.println("end");
-			Sout.println( latitude + "," + longitude );
+			Sout.println(latitude + "," + longitude);
 			Sout.println(this.markY + "," + this.markX);
 			Sout.flush();
 			String usol = null;
@@ -150,7 +145,9 @@ public class Model extends Observable {
 
 				while (!stop) {
 					getPlanePos();
-					Thread.sleep(250);
+					setChanged();
+					notifyObservers(lat);
+					Thread.sleep(25000);
 				}
 
 			} catch (IOException | InterruptedException e) {
@@ -182,8 +179,6 @@ public class Model extends Observable {
 	public void coordsToPos(Double x, Double y) {
 		lat = -1 * ((y - initY) / offSet) + 1;
 		longi = ((x - InitX) / offSet) + 1;
-		setChanged();
-		notifyObservers();
 	}
 
 }

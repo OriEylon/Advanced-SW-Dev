@@ -16,7 +16,7 @@ import javafx.beans.property.StringProperty;
 public class ViewModel extends Observable implements Observer {
 	Model m;
 //	ClientSim client = new ClientSim();
-	public StringProperty Script;
+	public StringProperty Script, ip, port;
 	public DoubleProperty VMaileron;
 	public DoubleProperty VMelevator;
 	public DoubleProperty VMrudder;
@@ -26,10 +26,13 @@ public class ViewModel extends Observable implements Observer {
 	public DoubleProperty VMlongitude, VMlatitude, VMmarkX, VMmarkY, VMh, VMw;
 	String[][] smat;
 	Double[][] dmat;
+//	private String[] solution;
 
 	public ViewModel() {
 		m = new Model();
 		Script = new SimpleStringProperty();
+		ip = new SimpleStringProperty();
+		port = new SimpleStringProperty();
 		VMrudder = new SimpleDoubleProperty();
 		VMthrottle = new SimpleDoubleProperty();
 		VMaileron = new SimpleDoubleProperty();
@@ -124,7 +127,11 @@ public class ViewModel extends Observable implements Observer {
 	public void calcPath(String ip, int port, Double markx, Double marky) {
 		// VMmarkX.set(markx);
 		// VMmarkY.set(marky);
-		m.calcPath(ip, port, dmat, VMmarkX.get() , VMmarkY.get() );
+		m.calcPath(ip, port, dmat, VMmarkX.get() / VMw.get(), VMmarkY.get() / VMh.get());
+	}
+
+	public void recalc(Double markX, Double markY) {
+		m.reCalc(markX / VMw.get(), markY / VMh.get());
 	}
 
 //	public void getPlanePos() {
@@ -142,12 +149,17 @@ public class ViewModel extends Observable implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if (o.getClass() == Model.class) {
+		if (arg.getClass() == Double.class) {
 			VMlongitude.set(m.getLongi());
 			VMlatitude.set(m.getLat());
 //			System.out.println("update:: " + "long: " + VMlongitude.getValue() + " lat:" + VMlatitude.getValue());
 			setChanged();
 			notifyObservers(VMlongitude);
+		}
+		else if (arg.getClass() == String[].class) {
+			setChanged();
+			notifyObservers(arg);
+			
 		}
 	}
 
