@@ -47,7 +47,7 @@ public class MarkDisplayer extends Canvas {
 				e.printStackTrace();
 			}
 			gc.clearRect(0, 0, Width, Height);
-			gc.drawImage(img, x-10, y-10, w * 20, h * 20);
+			gc.drawImage(img, x-5, y-15, w * 20, h * 20);
 
 		}
 

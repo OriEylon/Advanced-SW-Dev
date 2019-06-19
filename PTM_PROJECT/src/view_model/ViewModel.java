@@ -154,12 +154,11 @@ public class ViewModel extends Observable implements Observer {
 			VMlatitude.set(m.getLat());
 //			System.out.println("update:: " + "long: " + VMlongitude.getValue() + " lat:" + VMlatitude.getValue());
 			setChanged();
-			notifyObservers(VMlongitude);
-		}
-		else if (arg.getClass() == String[].class) {
+			notifyObservers(VMlongitude.get());
+		} else if (arg.getClass() == String[].class) {
 			setChanged();
 			notifyObservers(arg);
-			
+
 		}
 	}
 

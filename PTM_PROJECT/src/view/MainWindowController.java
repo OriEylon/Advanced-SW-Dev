@@ -27,7 +27,6 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -77,9 +76,6 @@ public class MainWindowController implements Observer {
 	Double[][] mat;
 	DoubleProperty h, w;
 	String[] solution;
-	// @FXML
-//	TextField VarBreaks, VarThrottle, VarHeading, VarAirspeed, VarRoll, VarPitch, VarRudder, VarAilron, VarElevetor,
-//			VarAlt, VarRpm, VarH0;
 
 	public MainWindowController() {
 //		vm = new ViewModel(new Model());
@@ -130,7 +126,7 @@ public class MainWindowController implements Observer {
 
 	public void load() {
 		FileChooser fc = new FileChooser();
-		fc.setInitialDirectory(new File("C:\\Users\\Ori\\GitHub\\Advanced-SW-Dev\\PTM_PROJECT"));
+//		fc.setInitialDirectory(new File("C:\\Users\\Ori\\GitHub\\Advanced-SW-Dev\\PTM_PROJECT"));
 		File selected = fc.showOpenDialog(null);
 		if (selected != null) {
 			try {
@@ -188,7 +184,7 @@ public class MainWindowController implements Observer {
 	public void Popup() {
 		Parent root;
 		try {
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("Popup.fxml"));
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("popup.fxml"));
 			root = fxmlLoader.load();
 			MainWindowController fc = fxmlLoader.getController();
 			fc.vm = this.vm;
@@ -215,8 +211,10 @@ public class MainWindowController implements Observer {
 		port.set(Port.getText());
 		if (who.equals("connect")) {
 			vm.connect(IP.getText(), Integer.parseInt(Port.getText()));
-		} else
+		} else {
+			clicked = true;
 			vm.calcPath(ip.get(), Integer.parseInt(port.get()), markX.get(), markY.get());
+		}
 
 		Stage stage = (Stage) open.getScene().getWindow();
 
@@ -315,11 +313,10 @@ public class MainWindowController implements Observer {
 		FileChooser fc = new FileChooser();
 		fc.setTitle("Load map");
 		fc.getExtensionFilters().add(new ExtensionFilter("CSV files", "*.csv"));
-		fc.setInitialDirectory(new File("C:\\Users\\Ori\\GitHub\\Advanced-SW-Dev\\PTM_PROJECT"));
+//		fc.setInitialDirectory(new File("C:\\Users\\Ori\\GitHub\\Advanced-SW-Dev\\PTM_PROJECT"));
 		File selected = fc.showOpenDialog(null);
 		if (selected != null) {
 			vm.readCSV(selected);
-
 			vm.LoadData();
 
 		}
@@ -328,7 +325,7 @@ public class MainWindowController implements Observer {
 
 	public void calcPath() {
 		who = "calcPath";
-		clicked = true;
+//		clicked = true;
 		Popup();
 	}
 
@@ -337,15 +334,13 @@ public class MainWindowController implements Observer {
 		double W = markDisplayer.getWidth();
 		double h = H / mat.length;
 		double w = W / mat[0].length;
+		double x = longitude.getValue() / w + 5;
+		double y = latitude.getValue() * h - 10;
 		GraphicsContext gc = markDisplayer.getGraphicsContext2D();
 		String move = solution[1];
-		double x = longitude.getValue() * w + 10 * w;
-		double y = latitude.getValue() * -h + 6 * h;
-		int count = 0;
-		// gc.setStroke(Color.BLACK);
-		// gc.strokeLine(x,y,markSceneX.getValue(),markSceneY.getValue());
 
 		for (int i = 2; i < solution.length; i++) {
+			move = solution[i];
 			switch (move) {
 			case "Right":
 
@@ -367,7 +362,6 @@ public class MainWindowController implements Observer {
 				gc.strokeLine(x, y, x, y + h);
 				y += h;
 			}
-			move = solution[i];
 		}
 
 	}
@@ -387,8 +381,7 @@ public class MainWindowController implements Observer {
 		else if (arg.getClass() == String[].class) {
 			this.solution = (String[]) arg;
 			this.drawLine();
-		}
-		else {
+		} else {
 			planeDisplayer.drawPlane(longitude.getValue(), latitude.getValue());
 //			System.out.println("view update:: longi: " + longitude.getValue() + " alt: " + latitude.getValue());
 //			planeDisplayer.toFront();

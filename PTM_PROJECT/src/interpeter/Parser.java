@@ -28,6 +28,7 @@ public class Parser {
 	private GenericFactory<Command> cmdFac = new GenericFactory<Command>();
 	ArrayList<CommandExpression> cmdList = new ArrayList<>();
 	public static ArrayList<String> simVars = new ArrayList<>();
+	public static boolean readvars;
 
 	public Parser() {
 //		cmdTbl = new HashMap<>();
@@ -52,7 +53,6 @@ public class Parser {
 		cmdTbl.put("=", new CommandExpression(new AssignCmd()));
 		cmdTbl.put("sleep", new CommandExpression(new SleepCmd()));
 		cmdTbl.put("print", new CommandExpression(new PrintCmd()));
-		readVars();
 //		symbolTable.put("simX", new Var());
 //		symbolTable.put("simY", new Var());
 //		symbolTable.put("simZ", new Var());
@@ -93,6 +93,10 @@ public class Parser {
 	}
 
 	public double parse(ArrayList<String> script) {
+		if (readvars == false) {
+			readvars = true;
+			readVars();
+		}
 		cmdList = parseScript(script);
 		for (CommandExpression ce : cmdList) {
 			ce.calculate();

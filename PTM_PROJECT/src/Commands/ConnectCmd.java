@@ -1,6 +1,5 @@
 package Commands;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -17,9 +16,9 @@ public class ConnectCmd implements Command {
 		int port = Integer.parseInt(arr.get(1));
 		new Thread(() -> {
 			try {
-				synchronized (wait) {
-					wait.wait();
-				}
+//				synchronized (wait) {
+//					wait.wait();
+//				}
 				Thread.sleep(3000);
 				Thread.currentThread().setName("My client Thread");
 				Socket socket = new Socket(ip, port);
@@ -38,7 +37,7 @@ public class ConnectCmd implements Command {
 				out.println("bye");
 				out.close();
 				socket.close();
-			} catch (IOException | InterruptedException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}).start();

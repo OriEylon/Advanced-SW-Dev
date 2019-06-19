@@ -10,7 +10,6 @@ import interpeter.Lexer;
 import interpeter.interpeter;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import view.MainWindowController;
 
 public class Model extends Observable {
 	interpeter i;
@@ -147,7 +146,7 @@ public class Model extends Observable {
 					getPlanePos();
 					setChanged();
 					notifyObservers(lat);
-					Thread.sleep(25000);
+					Thread.sleep(250);
 				}
 
 			} catch (IOException | InterruptedException e) {
