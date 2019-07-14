@@ -1,3 +1,3 @@
-# Advanced-SW-Dev
-ASD course project- OOD architecture, client-server, caching and streaming: a server for general problem solving(shortest path, string reversing, etc).
-during this semester will add: interpeter, multi-threading, GUI(desktop app) :interpeter for a flight simulator, will read commands from client and interpet them to the flight simulator for online results.
+# Advanced-SW-Dev 
+course project - a desktop app which connects to a flight simulator, and offers the choice between manualy controlling the plane or loading a script which will be interpeted to flight commands. also contains a server for general problem solving (shortest path, etc).
+This project implements the following: MVVM architecture, multi-threading, OOD architecture, client-server, caching and streaming, interpeter (generic, implemented by me), GUI(desktop app),javaFX.
